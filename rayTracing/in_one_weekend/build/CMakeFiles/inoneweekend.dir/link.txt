@@ -1,0 +1,3 @@
+"E:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\inoneweekend.dir/objects.a
+C:\PROGRA~1\mingw64\bin\ar.exe qc CMakeFiles\inoneweekend.dir/objects.a @CMakeFiles\inoneweekend.dir\objects1.rsp
+C:\PROGRA~1\mingw64\bin\X86_64~2.EXE -g -Wl,--whole-archive CMakeFiles\inoneweekend.dir/objects.a -Wl,--no-whole-archive -o inoneweekend.exe -Wl,--out-implib,libinoneweekend.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\inoneweekend.dir\linklibs.rsp
