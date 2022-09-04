@@ -172,23 +172,28 @@ if __name__ == "__main__":
                 gui.running = False
                 exit()
             elif e.key == 'w':
-                # clear()
+                clear()
+                cnt = 0
                 lf_z += 0.5
                 # print("w, lf_z is ", lf_z)
             elif e.key == 's':
-                # clear()
+                clear()
+                cnt = 0
                 lf_z -= 0.5
                 # print("s, lf_z is ", lf_z)
             elif e.key == 'a':
-                # clear()
+                clear()
+                cnt = 0
                 lf_x += 0.5
                 # print("a, lf_x is ", lf_x)
             elif e.key == 'd':
-                # clear()
+                clear()
+                cnt = 0
                 lf_x -= 0.5
                 # print("d, lf_x is ", lf_x)                                           
         camera.reset(ti.math.vec3(lf_x, lf_y, lf_z))
         render()
+        # render_with_camera()
         cnt += 1
         gui.set_image(np.sqrt(canvas.to_numpy() / cnt))  # correction
         gui.show()
