@@ -7,3 +7,5 @@
 
 ## Cornell Box
 <img src="./rayTracing_with_taichi/path_tracing_taichi/images/box.png" width="80%" height="100%">
+<br/>
+<img src="./rayTracing_with_taichi/path_tracing_taichi/images/box2.png" width="80%" height="100%">

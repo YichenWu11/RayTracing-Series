@@ -1,4 +1,3 @@
-from turtle import clear
 import taichi as ti
 import numpy as np
 import argparse
@@ -127,11 +126,12 @@ if __name__ == "__main__":
     scene = Hittable_list()
 
     # Light source
-    scene.add(Sphere(center=ti.Vector([0, 5.4, -1]), radius=3.0, material=0, color=ti.Vector([10.0, 10.0, 10.0])))
+    scene.add(Sphere(center=ti.Vector([0, 5.4, -0.2]), radius=3.0, material=0, color=ti.Vector([10.0, 10.0, 10.0])))
+    # scene.add(Plane(center=ti.Vector([0, 2.5, -1]), normal=ti.Vector([0.0, 1.0, 0.0]), color=ti.Vector([50.0, 50.0, 50.0]), material=0, width=0.8))
 
     # Ground
     # scene.add(Sphere(center=ti.Vector([0, -100.5, -1]), radius=100.0, material=1, color=ti.Vector([0.8, 0.8, 0.8])))
-    scene.add(Plane(center=ti.Vector([0, -0.5, -1]), normal=ti.Vector([0.0, 1.0, 0.0]), color=ti.Vector([0.8, 0.8, 0.8])))
+    scene.add(Plane(center=ti.Vector([0, -0.5, -1]), normal=ti.Vector([0.0, 1.0, 0.0]), color=ti.Vector([0.8, 0.8, 0.8]), material=2))
 
     # ceiling
     # scene.add(Sphere(center=ti.Vector([0, 102.5, -1]), radius=100.0, material=1, color=ti.Vector([0.8, 0.8, 0.8])))
@@ -154,7 +154,16 @@ if __name__ == "__main__":
     # Metal ball
     scene.add(Sphere(center=ti.Vector([-0.8, 0.2, -1]), radius=0.7, material=2, color=ti.Vector([0.6, 0.8, 0.8])))
     # Glass ball
-    scene.add(Sphere(center=ti.Vector([0.7, 0, -0.5]), radius=0.5, material=3, color=ti.Vector([1.0, 1.0, 1.0])))
+    # scene.add(Sphere(center=ti.Vector([0.7, 0.0, -0.5]), radius=0.5, material=3, color=ti.Vector([1.0, 1.0, 1.0])))
+    scene.add(Cube(center=ti.Vector([0.7, 0.0, -0.5]),
+                   front_center=ti.Vector([0.7, 0.0, -1.0]),
+                   bottom_center=ti.Vector([0.7, -0.5, -0.5]),
+                   left_center=ti.Vector([0.2, 0.0, -0.5]),
+                   material=1,
+                   color=ti.Vector([1.0, 1.0, 1.0]),
+    ))
+
+
     # Metal ball-2
     scene.add(Sphere(center=ti.Vector([0.6, -0.3, -2.0]), radius=0.2, material=4, color=ti.Vector([0.8, 0.6, 0.2])))
 

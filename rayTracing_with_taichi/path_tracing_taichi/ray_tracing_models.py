@@ -1,4 +1,3 @@
-from multiprocessing import set_forkserver_preload
 import taichi as ti
 
 PI = 3.14159265
@@ -64,11 +63,21 @@ class Ray:
 # TODO:Plane是对的，Cube不对
 @ti.data_oriented
 class Plane:
-    def __init__(self, center, normal, color):
+    def __init__(self, center, normal, color, material=1, width=5):
         self.center = center
         self.normal = normal
         self.color = color
-        self.material = 1
+        self.material = material
+        self.width = width
+
+    @ti.func
+    def is_inside_plane(self, point):
+        res = False
+        if self.center[0] - self.width/2 < point[0] and self.center[0] + self.width/2 > point[0]:
+            if self.center[1] - self.width/2 < point[1] and self.center[1] + self.width/2 > point[1]:
+                if self.center[2] - self.width/2 < point[2] and self.center[2] + self.width/2 > point[2]:
+                    res = True
+        return res
 
     @ti.func
     def hit(self, ray, t_min=0.001, t_max=10e8):
@@ -79,12 +88,14 @@ class Plane:
         hit_point_normal = ti.Vector([0.0, 0.0, 0.0])
         t = ((self.center - ray.origin).dot(self.normal)) / (self.normal.dot(ray.direction))
         if t > t_min and t < t_max:
-            is_hit = True
-            root = t
-            hit_point = ray.at(t)
-            hit_point_normal = self.normal
-            if ray.direction.dot(hit_point_normal) < 0:
-                front_face = True
+            hit_point_tmp = ray.at(t)
+            if self.is_inside_plane(hit_point_tmp):
+                is_hit = True
+                root = t
+                hit_point = hit_point_tmp
+                hit_point_normal = self.normal
+                if ray.direction.dot(hit_point_normal) < 0:
+                    front_face = True
         return is_hit, root, hit_point, hit_point_normal, front_face, self.material, self.color
 
 
@@ -108,12 +119,12 @@ class Cube:
         self.top_normal = -self.bottom_normal
 
         self.plane_list = [
-            Plane(front_center, self.front_normal, color),
-            Plane(center + (center - front_center), self.back_normal, color),
-            Plane(left_center, self.left_normal, color),
-            Plane(center + (center - left_center), self.right_normal, color),
-            Plane(center + (center - bottom_center), self.top_normal, color),
-            Plane(bottom_center, self.bottom_normal, color),
+            Plane(front_center, self.front_normal, color, material=self.material, width=1),
+            Plane(center + (center - front_center), self.back_normal, color, material=self.material, width=1),
+            Plane(left_center, self.left_normal, color, material=self.material, width=1),
+            Plane(center + (center - left_center), self.right_normal, color, material=self.material, width=1),
+            Plane(center + (center - bottom_center), self.top_normal, color, material=self.material, width=1),
+            Plane(bottom_center, self.bottom_normal, color, material=self.material, width=1),
         ]
 
     @ti.func
@@ -268,7 +279,7 @@ class Camera:
         v = w.cross(u) # up at y
         self.cam_lower_left_corner[None] = ti.Vector([-half_width, -half_height, -1.0])
         self.cam_lower_left_corner[None] = self.cam_origin[None] - half_width * u - half_height * v - w
-        print(self.cam_lower_left_corner[None])
+        # print(self.cam_lower_left_corner[None])
         self.cam_horizontal[None] = 2 * half_width * u
         self.cam_vertical[None] = 2 * half_height * v
 
