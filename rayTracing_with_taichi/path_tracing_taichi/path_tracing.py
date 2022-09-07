@@ -1,8 +1,12 @@
 import taichi as ti
 import numpy as np
 import argparse
-from ray_tracing_models import Ray, Camera, Hittable_list, Sphere, Cube, Plane, PI, random_in_unit_sphere, refract, reflect, reflectance, random_unit_vector
-ti.init(arch=ti.gpu)
+from ray_tracing_tools import Ray, random_in_unit_sphere, refract, reflect, reflectance, random_unit_vector
+from camera import Camera
+from object import Plane, Cube, Sphere
+from hittable import Hittable_list
+
+ti.init(arch=ti.cuda)
 
 # Canvas
 aspect_ratio = 1.0
@@ -20,22 +24,6 @@ sample_on_unit_sphere_surface = True
 def clear():
     for i, j in canvas:
         canvas[i, j] = ti.Vector([0.0, 0.0, 0.0])
-
-@ti.kernel
-def render_with_camera():
-    for i, j in canvas:
-        cur_color = ti.Vector([0.0, 0.0, 0.0])
-        for k in range(16):
-            u = (i + ti.random()) / image_width
-            v = (j + ti.random()) / image_height
-            color = ti.Vector([0.0, 0.0, 0.0])
-            for n in range(samples_per_pixel):
-                ray = camera.get_ray(u, v)
-                color += ray_color(ray)
-            color /= samples_per_pixel
-            cur_color += color
-        canvas[i, j] = cur_color
-
     
 @ti.kernel
 def render():
@@ -60,7 +48,7 @@ def ray_color(ray):
     for n in range(max_depth):
         if ti.random() > p_RR:
             break
-        is_hit, hit_point, hit_point_normal, front_face, material, color = scene.hit(Ray(scattered_origin, scattered_direction))
+        is_hit, hit_point, hit_point_normal, front_face, material, color, shape = scene.hit(Ray(scattered_origin, scattered_direction))
         if is_hit:
             if material == 0:
                 color_buffer = color * brightness
@@ -125,6 +113,9 @@ if __name__ == "__main__":
     sample_on_unit_sphere_surface = not args.samples_in_unit_sphere
     scene = Hittable_list()
 
+    """
+        Build the World
+    """
     # Light source
     scene.add(Sphere(center=ti.Vector([0, 5.4, -0.2]), radius=3.0, material=0, color=ti.Vector([10.0, 10.0, 10.0])))
     # scene.add(Plane(center=ti.Vector([0, 2.5, -1]), normal=ti.Vector([0.0, 1.0, 0.0]), color=ti.Vector([50.0, 50.0, 50.0]), material=0, width=0.8))
@@ -155,15 +146,7 @@ if __name__ == "__main__":
     scene.add(Sphere(center=ti.Vector([-0.8, 0.2, -1]), radius=0.7, material=2, color=ti.Vector([0.6, 0.8, 0.8])))
     # Glass ball
     # scene.add(Sphere(center=ti.Vector([0.7, 0.0, -0.5]), radius=0.5, material=3, color=ti.Vector([1.0, 1.0, 1.0])))
-    scene.add(Cube(center=ti.Vector([0.7, 0.0, -0.5]),
-                   front_center=ti.Vector([0.7, 0.0, -1.0]),
-                   bottom_center=ti.Vector([0.7, -0.5, -0.5]),
-                   left_center=ti.Vector([0.2, 0.0, -0.5]),
-                   material=1,
-                   color=ti.Vector([1.0, 1.0, 1.0]),
-    ))
-
-
+    scene.add(Cube(center=ti.Vector([0.7, 0.0, -0.5]), material=1, color=ti.Vector([1.0, 1.0, 1.0]), width=1))
     # Metal ball-2
     scene.add(Sphere(center=ti.Vector([0.6, -0.3, -2.0]), radius=0.2, material=4, color=ti.Vector([0.8, 0.6, 0.2])))
 
@@ -171,6 +154,7 @@ if __name__ == "__main__":
     gui = ti.GUI("Ray Tracing", res=(image_width, image_height))
     canvas.fill(0)
     cnt = 0
+    # look from
     lf_x = 0.0
     lf_y = 1.0
     lf_z = -5.0
@@ -199,10 +183,10 @@ if __name__ == "__main__":
                 clear()
                 cnt = 0
                 lf_x -= 0.5
-                # print("d, lf_x is ", lf_x)                                           
+                # print("d, lf_x is ", lf_x)         
+        # camera motion                                  
         camera.reset(ti.math.vec3(lf_x, lf_y, lf_z))
         render()
-        # render_with_camera()
         cnt += 1
         gui.set_image(np.sqrt(canvas.to_numpy() / cnt))  # correction
         gui.show()
