@@ -8,13 +8,9 @@ import taichi as ti
         2 : metal        (金属)
         3 : glass        (dielectric)
         4 : Fuzz Metal   (有光泽)
-
-    Shape
-        1 : Sphere
-        2 : Cube
-        3 : Plane
 '''
 
+# 平面
 @ti.data_oriented
 class Plane:
     def __init__(self, center, normal, color, material=1, width=5, height=5):
@@ -24,7 +20,6 @@ class Plane:
         self.material = material
         self.width = width
         self.height = height
-        self.shape = 3
 
     @ti.func
     def is_inside_plane(self, point):
@@ -52,8 +47,19 @@ class Plane:
                 hit_point_normal = self.normal
                 if ray.direction.dot(hit_point_normal) < 0:
                     front_face = True
-        return is_hit, root, hit_point, hit_point_normal, front_face, self.material, self.color, self.shape
+        return is_hit, root, hit_point, hit_point_normal, front_face, self.material, self.color
 
+
+# TODO:三角形
+@ti.data_oriented
+class Triangle:
+    def __init__(self, a, b, c, normal, color, material=1):
+        ...
+
+    
+    @ti.func
+    def hit(self, ray, t_min=0.001, t_max=10e8):
+        ...
 
 # 正方体
 @ti.data_oriented
@@ -83,7 +89,6 @@ class Cube:
             Plane(center + (center - self.bottom_center), self.top_normal, color, material=self.material, width=self.width),
             Plane(self.bottom_center, self.bottom_normal, color, material=self.material, width=self.width),
         ]
-        self.shape = 2
 
     @ti.func
     def hit(self, ray, t_min=0.001, t_max=10e8):
@@ -95,9 +100,9 @@ class Cube:
         hit_point_normal = ti.Vector([0.0, 0.0, 0.0])
         color = ti.Vector([0.0, 0.0, 0.0])
         material = self.material
-        shape = self.shape
+
         for index in ti.static(range(len(self.plane_list))):
-            is_hit_tmp, root_tmp, hit_point_tmp, hit_point_normal_tmp, front_face_tmp, material_tmp, color_tmp, shape_tmp =  self.plane_list[index].hit(ray, t_min, closest_t)
+            is_hit_tmp, root_tmp, hit_point_tmp, hit_point_normal_tmp, front_face_tmp, material_tmp, color_tmp =  self.plane_list[index].hit(ray, t_min, closest_t)
             if is_hit_tmp:
                 closest_t = root_tmp
                 is_hit = is_hit_tmp
@@ -106,9 +111,10 @@ class Cube:
                 front_face = front_face_tmp
                 color = color_tmp
                 material = material_tmp
-                shape = shape_tmp
-        return is_hit, root, hit_point, hit_point_normal, front_face, material, color, shape
+        return is_hit, root, hit_point, hit_point_normal, front_face, material, color
 
+
+# 球体
 @ti.data_oriented
 class Sphere:
     def __init__(self, center, radius, material, color):
@@ -116,7 +122,7 @@ class Sphere:
         self.radius = radius
         self.material = material
         self.color = color
-        self.shape = 1
+
 
     @ti.func
     def hit(self, ray, t_min=0.001, t_max=10e8):
@@ -147,4 +153,4 @@ class Sphere:
                 front_face = True
             else:
                 hit_point_normal = -hit_point_normal
-        return is_hit, root, hit_point, hit_point_normal, front_face, self.material, self.color, self.shape
+        return is_hit, root, hit_point, hit_point_normal, front_face, self.material, self.color

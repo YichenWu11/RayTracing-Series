@@ -18,9 +18,8 @@ class Hittable_list:
         hit_point_normal = ti.Vector([0.0, 0.0, 0.0])
         color = ti.Vector([0.0, 0.0, 0.0])
         material = 1
-        shape = 1
         for index in ti.static(range(len(self.objects))):
-            is_hit_tmp, root_tmp, hit_point_tmp, hit_point_normal_tmp, front_face_tmp, material_tmp, color_tmp, shape_tmp =  self.objects[index].hit(ray, t_min, closest_t)
+            is_hit_tmp, root_tmp, hit_point_tmp, hit_point_normal_tmp, front_face_tmp, material_tmp, color_tmp =  self.objects[index].hit(ray, t_min, closest_t)
             if is_hit_tmp:
                 closest_t = root_tmp
                 is_hit = is_hit_tmp
@@ -29,8 +28,7 @@ class Hittable_list:
                 front_face = front_face_tmp
                 material = material_tmp
                 color = color_tmp
-                shape = shape_tmp
-        return is_hit, hit_point, hit_point_normal, front_face, material, color, shape
+        return is_hit, hit_point, hit_point_normal, front_face, material, color
 
     @ti.func
     def hit_shadow(self, ray, t_min=0.001, t_max=10e8):

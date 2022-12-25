@@ -48,7 +48,7 @@ def ray_color(ray):
     for n in range(max_depth):
         if ti.random() > p_RR:
             break
-        is_hit, hit_point, hit_point_normal, front_face, material, color, shape = scene.hit(Ray(scattered_origin, scattered_direction))
+        is_hit, hit_point, hit_point_normal, front_face, material, color = scene.hit(Ray(scattered_origin, scattered_direction))
         if is_hit:
             if material == 0:
                 color_buffer = color * brightness
@@ -150,7 +150,7 @@ if __name__ == "__main__":
     # Metal ball-2
     scene.add(Sphere(center=ti.Vector([0.6, -0.3, -2.0]), radius=0.2, material=4, color=ti.Vector([0.8, 0.6, 0.2])))
 
-    camera = Camera()  # look at [0.0, 1.0, -1.0]  look from [0.0, 1.0, -5.0]
+    camera = Camera()  # look at [0.0, 1.0, -1.0]  look from [0.0, 1.0, -4.0]
     gui = ti.GUI("Ray Tracing", res=(image_width, image_height))
     canvas.fill(0)
     cnt = 0

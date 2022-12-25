@@ -21,6 +21,8 @@ class Camera:
         self.lookfrom[None] = new_ori
         self.lookat[None] = [0.0, 1.0, -1.0]
         self.vup[None] = [0.0, 1.0, 0.0]
+        # distance = (self.lookat[None] - self.lookfrom[None]).norm()
+        # hey, there is a trick that we view the distance as 1
         theta = self.fov * (PI / 180.0)
         half_height = ti.tan(theta / 2.0)
         half_width = self.aspect_ratio * half_height
@@ -40,6 +42,7 @@ class Camera:
         u = (self.vup[None].cross(w)).normalized()
         v = w.cross(u) # up at y
         self.cam_lower_left_corner[None] = ti.Vector([-half_width, -half_height, -1.0])
+        distance = ti.math.sqrt((self.lookat[None] - self.lookfrom[None]).norm())
         self.cam_lower_left_corner[None] = self.cam_origin[None] - half_width * u - half_height * v - w
         # print(self.cam_lower_left_corner[None])
         self.cam_horizontal[None] = 2 * half_width * u

@@ -34,6 +34,7 @@ def refract(uv, n, etai_over_etat):
     r_out_parallel = -ti.sqrt(abs(1.0 - r_out_perp.dot(r_out_perp))) * n
     return r_out_perp + r_out_parallel
 
+# Fresnel
 @ti.func
 def reflectance(cosine, ref_idx):
     # Use Schlick's approximation for reflectance.
